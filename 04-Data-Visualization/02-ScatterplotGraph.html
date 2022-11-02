@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/d3@7" ></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <title>Scatterplot Graph</title>
+        <style>
+            * {
+                border: 1px solid blue;
+            }
+            body {
+                background: gray;
+                padding: 10%
+            }
+            #title {
+                text-align: center;
+            }
+            #scatterplotGraph {
+                background: white;
+            }
+            #chart {
+                padding: 5%;
+                align-items: center;
+                margin: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="scatterplotGraph">
+            <h2 id="title">
+                Doping in Professional Bicycle Racing
+            </h2>
+            <div id="legend">blue: no doping allegations <br> orange: rider with doping allegations</div>
+            <div id="chart"></div>
+            <div id="tooltip" hidden="true">OK</div>
+                <script>
+fetch('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json')
+.then(response => response.json())
+.then(data => {
+    const h = 500;
+    const w = document.getElementById('chart').clientWidth * 0.7;
+    const padding = w * 0.1;
+    //document.getElementById('chart').textContent = JSON.stringify(data);
+    const xScale = d3.scaleLinear()
+        .domain([1993, 2016])
+        .range([padding, w - padding]);
+    const yScale = d3.scaleTime()
+        .domain([new Date(d3.min(data, (d) => d.Seconds) * 1000), new Date(d3.max(data, (d) => d.Seconds) * 1000)])
+        .range([h - padding, padding]);
+    const svg = d3.select("#chart")
+        .append("svg")
+        .attr("width", w)
+        .attr("height", h);
+    const xAxis = d3.axisBottom(xScale).tickFormat(d3.format("d"));
+    const yAxis = d3.axisLeft(yScale).tickFormat(d3.timeFormat("%M:%S"));
+    svg.selectAll("circle").data(data).enter()
+        .append("circle").attr("cx", (d) => xScale(d.Year)).attr("cy", (d) => yScale(new Date(d.Seconds * 1000)))
+        .attr("r", 5).attr("data-xvalue", (d) => d.Year).attr("data-yvalue", (d) => new Date(d.Seconds * 1000))
+        .attr("class", "dot")
+        .attr("onmouseenter", d => 
+            "document.getElementById('tooltip').textContent = '" + JSON.stringify(d) +"';" +
+            "document.getElementById('tooltip').hidden = false;"+
+            "document.getElementById('tooltip').dataset.year = '" + d.Year + "';")
+        .attr("onmouseleave", "document.getElementById('tooltip').hidden = true")
+        .attr("fill", d => {
+            if(d.Doping == ""){
+                return "blue";
+            } else return "orange";
+        });
+    svg.append("g")
+        .attr("id", "x-axis")
+        .attr("transform", "translate(0, " + (h-padding) + ")")
+        .call(xAxis);
+    svg.append("g")
+        .attr("id", "y-axis")
+        .attr("transform", "translate("+ padding + ", 0)")
+        .call(yAxis);
+});
+                </script>
+        </div>
+    </body>
+</html>

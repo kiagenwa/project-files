@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <style>
+
+            #drum-machine {
+            margin: auto;
+            width: 70%;
+            }
+
+            #display {
+            text-align: center;
+            }
+
+            #keypad {
+            margin: auto;
+            width: 50%;
+            }
+        </style>
+      </head>
+      <body>
+        <div id="drum-machine">
+          <div id="display">Track Name</div>
+          <div id="keypad">
+          <button class="drum-pad" id="heater-1" onclick="document.getElementById('Q').play()" >Q<audio class="clip" id="Q" src="https://s3.amazonaws.com/freecodecamp/drums/Heater-1.mp3" ></audio></button>
+          <button class="drum-pad" id="heater-2" onclick="document.getElementById('W').play()" >W<audio class="clip" id="W" src="https://s3.amazonaws.com/freecodecamp/drums/Heater-2.mp3"></audio></button>
+          <button class="drum-pad" id="heater-3" onclick="document.getElementById('E').play()">E<audio class="clip" id="E" src="https://s3.amazonaws.com/freecodecamp/drums/Heater-3.mp3"></audio></button>
+            <br></br>
+          <button class="drum-pad" id="heater-4" onclick="document.getElementById('A').play()" >A<audio class="clip" id="A" src="https://s3.amazonaws.com/freecodecamp/drums/Heater-4_1.mp3"></audio></button>
+          <button class="drum-pad" id="clap" onclick="document.getElementById('S').play()" >S<audio class="clip" id="S" src="https://s3.amazonaws.com/freecodecamp/drums/Heater-6.mp3"></audio></button>
+          <button class="drum-pad" id="open-hh" onclick="document.getElementById('D').play()" >D<audio class="clip" id="D" src="https://s3.amazonaws.com/freecodecamp/drums/Dsc_Oh.mp3"></audio></button>
+          <br></br>
+          <button class="drum-pad" id="kick-hat" onclick="document.getElementById('Z').play()" >Z<audio class="clip" id="Z" src="https://s3.amazonaws.com/freecodecamp/drums/Kick_n_Hat.mp3"></audio></button>
+          <button class="drum-pad" id="kick" onclick="document.getElementById('X').play()" >X<audio class="clip" id="X" src="https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3"></audio></button>
+          <button class="drum-pad" id="closed-hh" onclick="document.getElementById('C').play()" >C<audio class="clip" id="C" src="https://s3.amazonaws.com/freecodecamp/drums/Cev_H2.mp3"></audio></button>
+          </div>
+        </div>
+      </body>
+      <script>
+        $(document).keypress(function(event){
+        const key = String.fromCharCode(event.which);
+        switch(key.toLowerCase()){
+            case 'q':
+            document.getElementById('heater-1').click();
+            break;
+            case 'w':
+            document.getElementById('heater-2').click()
+            break;
+            case 'e':
+            document.getElementById('heater-3').click()
+            break;
+            case 'a':
+            document.getElementById('heater-4').click()
+            break;
+            case 's':
+            document.getElementById('clap').click()
+            break;
+            case 'd':
+            document.getElementById('open-hh').click()
+            break;
+            case 'z':
+            document.getElementById('kick-hat').click()
+            break;
+            case 'x':
+            document.getElementById('kick').click()
+            break;
+            case 'c':
+            document.getElementById('closed-hh').click()
+            break;
+            default:
+            break;
+        }
+        });
+
+        $(".drum-pad").click(function(){
+        const id = $(this).attr('id');
+        switch(id){
+            case 'heater-1':
+            $('#display').text('Heater 1');
+            break;
+            case 'heater-2':
+            $('#display').text('Heater 2');
+            break;
+            case 'heater-3':
+            $('#display').text('Heater 3');
+            break;
+            case 'heater-4':
+            $('#display').text('Heater 4');
+            break;
+            case 'clap':
+            $('#display').text('Clap');
+            break;
+            case 'open-hh':
+            $('#display').text('Open-HH');
+            break;
+            case 'kick-hat':
+            $('#display').text('Kick-n\'-Hat');
+            break;
+            case 'kick':
+            $('#display').text('Kick');
+            break;
+            case 'closed-hh':
+            $("#display").text('Closed-HH')
+            break;
+        }
+        })
+    </script>
+</html>

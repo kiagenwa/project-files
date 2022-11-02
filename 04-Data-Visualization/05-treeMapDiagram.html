@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://cdn.jsdelivr.net/npm/d3@7" ></script>
+        <script src="https://unpkg.com/topojson@3"></script>
+        <title>Treemap Diagram</title>
+        <style>
+            * {
+            border: 1px solid blue;
+            }
+            body {
+            background: gray;
+            padding: 10%
+            }
+            #title, #description {
+            text-align: center;
+            }
+            #treeMapDiagram {
+            background: white;
+            }
+            #chart {
+            padding: 5%;
+            align-items: center;
+            margin: auto;
+            }
+            #legends {
+            display: flex;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="treeMapDiagram">
+          <h1 id="title">Kickstarter Pledges</h1>
+          <p id="description">Top 100 Most Pledged Kickstarter Campaigns Grouped By Category</p>
+          <div id="chart">
+            <div id="legends">
+              <div id="tooltip"></div>
+              <div id="legend"></div>
+            </div>
+          </div>
+        </div>
+        <script>
+const topo = fetch('https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/kickstarter-funding-data.json').then(d => d.json());
+const h = 800;
+const w = document.getElementById('chart').clientWidth * 0.7;
+const padding = 2;
+const svgLegend = d3.select('#legend').append('svg')
+.attr("width", w).attr("height", 50);
+const svg = d3.select("#chart").append("svg").attr("width", w).attr("height", h);
+topo.then( data => {
+    console.log(data);
+    const root = d3.hierarchy(data).sum(d => d.value);
+    const colors = {};
+    data.children.forEach( (d, i) => {
+        colors[d.name] = d3.interpolateSpectral(1 / data.children.length * i);
+    });
+    console.log(colors);
+    d3.treemap()
+        .size([w, h])
+        .padding(padding)
+        (root)
+    svg.selectAll("rect")
+        .data(root.leaves())
+        .join("rect")
+            .attr("x", d => d.x0)
+            .attr("y", d => d.y0)
+            .attr("width", d => d.x1 - d.x0)
+            .attr("height", d => d.y1 - d.y0)
+            .style("stroke", "black")
+            .style("fill", d => colors[d.data.category])
+            .attr("class", "tile")
+            .attr("data-name", d => d.data.name)
+            .attr("data-category", d => d.data.category)
+            .attr("data-value", d => d.data.value)
+            .attr("onmouseenter", d => "document.getElementById('tooltip').innerHTML = '" + d.data.category + " - "
+                + d.data.name + "<br>" + d.data.value +"';" +
+                "document.getElementById('tooltip').hidden = false;"+
+                "document.getElementById('tooltip').dataset.value = '" + d.data.value + "';")
+            .attr("onmouseleave", "document.getElementById('tooltip').hidden = true");
+    svg.selectAll("text")
+        .data(root.leaves())
+        .join("text")
+            .attr("x", d => d.x0 + 5)
+            .attr("y", d => d.y0 + 20)
+            .text(d => d.data.name)
+                .attr("font-size", "10px")
+                .attr("fill", "white");
+    
+    svgLegend.selectAll("rect").data(Object.values(colors)).enter().append("rect")
+        .attr("width", 10).attr("height", 5).attr("fill", d => d)
+        .attr("x", (_, i) => i * 30)
+        .attr("class", "legend-item");
+});
+        </script>
+    </body>
+</html>

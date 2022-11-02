@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Survey Form</title>
+  </head>
+  <body>
+    <h1 id="title">Omni Survey Form</h1>
+    <p id="description">Thank you for joining our program. Please help us improve the program by providing us the feedback.</p>
+    <form id="survey-form">
+      <fieldset>
+        <label id="name-label">Enter your name: <input id="name" type="text" required placeholder="Name Surname" /></label>
+        <label id="email-label">Enter your email: <input id="email" type="email" required placeholder="mail@domain.com" /></label>
+      </fieldset>
+      <fieldset>
+        <label id="number-label">How much would you recommend us to your friends? Please rate it from 0 to 10, with 10 being 'definitely': <input id="number" type="number" min="0" max="10" placeholder="10" /></label>
+      </fieldset>
+      <fieldset>
+        <label> How did you know about us?
+          <select id="dropdown">
+            <option value="">(select one)</option>
+            <option value="1">Friends</option>
+            <option value="2">Foes</option>
+          </select>
+        </label>
+        </fieldset>
+      <fieldset>
+        Customer type
+        <label><input type="radio" name="ctype" value="1" />Personnel</label>
+        <label><input type="radio" name="ctype" value="2" />Business</label>
+      </fieldset>
+      <fieldset>Purchased commodities
+        <label><input type="checkbox" name="commodity" value="1" />Remotes</label>
+        <label><input type="checkbox" name="commodity" value="2" />Alert system</label>
+        <label><input type="checkbox" name="commodity" value="3" />Batteries</label>
+      </fieldset>
+      <fieldset>Recommendations
+        <textarea></textarea>
+      </fieldset>
+      <input type="submit" id="submit" />
+    </form>
+  </body>
+</html>

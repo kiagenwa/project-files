@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.1.0/marked.min.js" integrity="sha512-DZIC9m2IbFlio5GE2oKD6/veW6NXML5Cbo9FHnba7Q9R4OCPelWw9R5QpupcPPLSv0euhuRr+5JV5pWl3X3nSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>"
+        <script type="text/babel">
+            // need initial text to include a H1, a H2, a link, inline code, a code block, a list item, a blockquote, an image, and bolded text.
+            const sampleText = `# Nyahallo~
+## This is sample text
+### Another sample text
+Headers are marked with hashtags. And we can add some inline code with backticks like \`<div></div>\`. Looks good?
+But who cares. We can use code block like
+\`\`\`python
+s= 'woah';
+print(s);
+\`\`\`
+Now, let's look at some more stuff. How about a list?
+1. Ohye
+2. uwu
+7. kk
+
+Didn't see it **coming**! I put 7 for the 3rd item but it turned to 3 instead.
+We can also quote stuff like
+> I'm standing here - somebody
+
+Lastly, let's add an image.
+![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Github logo")
+
+For more information, please check [here](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
+`;
+            const renderer = new marked.Renderer();
+            renderer.link = function (href, title, text) {
+            return `<a target="_blank" href="${href}">${text}</a>`;
+            };
+            marked.setOptions({
+                breaks: true/*,
+                highlight: function (code) {
+                return Prism.highlight(code, Prism.languages.javascript, 'javascript');
+            }*/
+            });
+            class Previewer extends React.Component {
+                constructor(props){
+                    super(props);
+                    this.state = {
+                        text: sampleText
+                    };
+                    this.handleChange = this.handleChange.bind(this);
+                }
+                handleChange(event) {
+                    this.setState({
+                        text: event.target.value
+                    });
+                }
+                render() {
+                    let markDown = marked.parse(this.state.text)
+                    //console.log(markDown);
+                    return (
+                        <div>
+                            <div id="editor-box">
+                                <h2>Editor</h2>
+                                <textarea id="editor" onChange={this.handleChange} value={this.state.text}></textarea>
+                            </div>
+                            <div id="preview-box">
+                                <h2>Previewer</h2>
+                                <div id="preview" dangerouslySetInnerHTML={{__html:markDown}} />
+                            </div>
+                        </div>
+                    )
+                }
+            }
+            const wrapper = ReactDOM.createRoot(document.getElementById("wrapper"))
+            wrapper.render(<Previewer/>)
+        </script>
+        <style>
+            * {
+                border: 1px solid red;
+            }
+            #editor-box h2, #preview-box h2 {
+                text-align: center;
+            }
+            #editor-box #editor {
+                margin: auto;
+            }
+            #editor-box, #preview-box {
+                width: 50%;
+                margin: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="wrapper"></div>
+    </body>
+</html>

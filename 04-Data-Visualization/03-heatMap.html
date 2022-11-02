@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/d3@7" ></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <title>Heat Map</title>
+        <style>
+            * {
+                border: 1px solid blue;
+            }
+            body {
+                background: gray;
+                padding: 10%
+            }
+            #title, #description {
+                text-align: center;
+            }
+            #heatMap {
+                background: white;
+            }
+            #chart {
+                padding: 5%;
+                align-items: center;
+                margin: auto;
+            }
+            #legends {
+                display: flex;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="heatMap">
+            <h1 id="title">Monthly Global Land-Surface Temperature</h1>
+            <h2 id="description"></h2>
+            <div id="chart">
+                <div id="legends">
+                    <div id="tooltip"></div>
+                    <div id="legend"></div>
+                </div>
+            </div>
+        </div>
+        <script>
+fetch('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json')
+.then(response => response.json())
+.then(data => {
+    const h = 500;
+    const w = document.getElementById('chart').clientWidth * 0.8;
+    const padding = w * 0.1;
+    const baseT = data.baseTemperature;
+    const lastYear = d3.max(data.monthlyVariance, d=>d.year);
+    const firstYear = d3.min(data.monthlyVariance, d=>d.year);
+    //document.getElementById('chart').textContent = JSON.stringify(data);
+    document.getElementById('description').textContent = firstYear + ' - ' +
+        lastYear + ': base temperature ' + baseT + '℃';
+    const yearsArray = [];
+    for (k=firstYear; k<=lastYear; k++){
+        yearsArray.push(k);
+    }
+    const xScale = d3.scaleBand()
+        .domain(yearsArray)
+        .range([padding, w - padding]);
+    const yScale = d3.scaleBand()
+        .domain(d3.timeMonths(new Date(2015,0), new Date(2015,11,5)).reverse())
+        .range([h - padding, padding]);
+    const svg = d3.select("#chart")
+        .append("svg")
+        .attr("width", w)
+        .attr("height", h);
+    const xAxis = d3.axisBottom(xScale).tickFormat(d3.format("d"))
+        .tickValues(xScale.domain().filter((d,i) => !(d%10)));
+    const yAxis = d3.axisLeft(yScale).tickFormat(d3.timeFormat("%B"));
+    svg.append("g")
+        .attr("id", "x-axis")
+        .attr("transform", "translate(0, " + (h-padding) + ")")
+        .call(xAxis);
+    svg.append("g")
+        .attr("id", "y-axis")
+        .attr("transform", "translate("+ padding + ", 0)")
+        .call(yAxis);
+    const colorSet = d3.scaleLinear().range(["blue", "red"]).domain([0, 1]);
+    const colors = [colorSet(0), colorSet(0.2), colorSet(0.4), colorSet(0.6), colorSet(0.8), colorSet(1)];
+    const heatScale = d3.scaleQuantize()
+        .range(colors)
+        .domain([baseT + d3.min(data.monthlyVariance, d=>d.variance), baseT + d3.max(data.monthlyVariance, d=>d.variance)]);
+    svg.selectAll("rect")
+        .data(data.monthlyVariance).enter().append("rect")
+        .attr("x", d => xScale(d.year)).attr("y", d => yScale(new Date(2015, d.month -1)))
+        .attr("width", xScale.bandwidth()).attr("height", yScale.bandwidth())
+        .attr("class", "cell").attr("data-month", d => d.month-1)
+        .attr("data-year", d => d.year).attr("data-temp", d => baseT + d.variance)
+        .style("fill", d => heatScale(baseT + d.variance))
+        .attr("onmouseenter", d => 
+            "document.getElementById('tooltip').innerHTML = '" + d.year + "-"+d.month + "<br>" + (baseT + d.variance).toFixed(2) +"';" +
+            "document.getElementById('tooltip').hidden = false;"+
+            "document.getElementById('tooltip').dataset.year = '" + d.year + "';")
+        .attr("onmouseleave", "document.getElementById('tooltip').hidden = true");
+    const svgLegend = d3.select('#legend').append('svg')
+        .attr("width", w).attr("height", 100);
+    svgLegend.selectAll("rect").data(colors).enter().append("rect")
+        .attr("width", 10).attr("height", 5).attr("fill", d => d)
+        .attr("x", (_, i) => i * 30)
+});
+        </script>
+    </body>
+</html>

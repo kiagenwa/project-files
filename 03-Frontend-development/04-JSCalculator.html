@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <style>
+            #wrapper {
+                width: 70%;
+                margin: auto;
+                border: 1px solid black;
+            }
+
+            #clear {
+                width: 40px;
+            }
+
+            #display, #keypad, #formula {
+                width: 30%;
+                min-width: 100px;
+                margin: auto;
+            }
+            #display span {
+                width: 50%;
+                text-align: right;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="formula">0</div>
+            <br/>
+              <div id="display">0</div>
+              <div id="keypad">
+                  <button class="command" id="clear">AC</button>
+                  <button class="sign" id="divide">/</button>
+                  <button class="sign" id="multiply">*</button>
+                  <br/>
+                  <button class="number" id="seven">7</button>
+                  <button class="number" id="eight">8</button>
+                  <button class="number" id="nine">9</button>
+                  <button class="sign" id="subtract">-</button>
+                  <br/>
+                  <button class="number" id="four">4</button>
+                  <button class="number" id="five">5</button>
+                  <button class="number" id="six">6</button>
+                  <button class="sign" id="add">+</button>
+                  <br/>
+                  <button class="number" id="one">1</button>
+                  <button class="number" id="two">2</button>
+                  <button class="number" id="three">3</button>
+                  <br/>
+                  <button class="number" id="zero">0</button>
+                  <button class="dot" id="decimal">.</button>
+                  <button class="command" id="equals">=</button>
+              </div>
+          </div>
+    </body>
+
+    <script>
+        const state = {
+            numbers: [],
+            signs: [],
+            currentIndex: -1,
+            signIndex: -1,
+            holder: 0,
+            inputDisplay: '0',
+            outputDisplay: '0'
+        };
+        let keyText = '';
+
+        $("#keypad button").click(function(){
+        const keyClass = $(this).attr('class');
+        switch(keyClass){
+            case 'number': 
+            keyText = $(this).text();
+            //alert(state.currentIndex);
+            if ((state.currentIndex == -1) || (state.signIndex == state.currentIndex)) {
+                state.numbers.push(keyText);
+                state.currentIndex++;
+            } else if (state.numbers[state.currentIndex][1] == '-') {
+                if (state.numbers[state.currentIndex][2] == '0') {
+                state.numbers[state.currentIndex] = '(-' + keyText + ')';
+                } else {
+                state.numbers[state.currentIndex] = state.numbers[state.currentIndex].substr(0, state.numbers[state.currentIndex].length-1) + keyText + ')';
+                }
+            } else {
+                state.numbers[state.currentIndex] += keyText;
+            }
+            console.log(state.numbers);
+            if(Number(state.numbers[state.currentIndex]) == 0){
+                state.numbers[state.currentIndex] = keyText;
+            }
+            state.outputDisplay = state.numbers[state.currentIndex];
+            updateDisplay(state);
+            break;
+            case 'sign':
+            keyText = $(this).text();
+            if (state.currentIndex == -1) {
+                state.numbers.push('0');
+                state.currentIndex++;
+            }
+            if (state.holder != 0) {
+                state.numbers = [state.holder];
+                state.signs = keyText;
+                state.signIndex = 0;
+                state.currentIndex = 0;
+            }
+            if (state.signIndex < state.currentIndex && !/[-]/.test(state.numbers[state.currentIndex])) {
+                state.signs.push(keyText);
+                state.signIndex++;
+            } else if (keyText == '-') {
+                state.numbers.push('(-0)');
+                state.currentIndex++;
+            } else if (/[-]/.test(state.numbers[state.currentIndex])) {
+                console.log('hey~');
+                state.numbers.pop();
+                state.currentIndex--;
+                state.signs[state.signIndex] = keyText;
+            } else {
+                state.signs[state.signIndex] = keyText;
+            }
+            console.log(/[-]/.test(state.numbers[state.currentIndex]));
+            console.log(state.signs);
+            updateDisplay(state);
+            state.outputDisplay = keyText;
+            break;
+            case 'command':
+            keyText = $(this).text();
+            if (keyText == '=') {
+                state.outputDisplay = eval(state.inputDisplay);
+                state.holder = state.outputDisplay;
+            } else if (keyText == 'AC') {
+                state.numbers = [];
+                state.signs = [];
+                state.currentIndex = -1;
+                state.signIndex = -1;
+                state.holder = 0;
+                state.inputDisplay = '0';
+                state.outputDisplay = '0';
+                $("#holder").text(state.outputDisplay);
+                $("#input-keys").text(state.inputDisplay);
+            }
+            break;
+            case 'dot':
+            if (state.currentIndex == -1) {
+                state.numbers.push('0.');
+                state.currentIndex++;
+            } else if (!/[.]/.test(state.numbers[state.currentIndex])) {
+                state.numbers[state.currentIndex] += '.';
+            }
+            console.log(state.numbers);
+            state.inputDisplay = state.numbers[0];
+            state.outputDisplay = state.numbers[0];
+            updateDisplay(state);
+            break;
+            default:
+            break;
+        }
+        console.log(state);
+        $("#formula").text(state.inputDisplay);
+        $("#display").text(state.outputDisplay);
+        })
+
+        function updateDisplay(state) {
+        //combine text and put to formula display
+        state.inputDisplay = state.numbers[0];
+        if (state.currentIndex > 0){
+            for (let i =1; i<state.numbers.length;i++) {
+            state.inputDisplay += state.signs[i-1] + state.numbers[i];
+            }}
+        }
+    </script>
+</html>

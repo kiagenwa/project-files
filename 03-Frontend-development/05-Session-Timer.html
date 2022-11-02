@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html leng="en">
+    <head>
+        <meta charset="UTF-8">
+  <title>CodePen - 25+5Clock</title>
+  <style>
+    #wrapper {
+    margin: auto;
+    width: 50%;
+    padding: 10px;
+    display: flex;
+    min-width: 200px;
+    border: 1px solid black;
+  }
+
+  #wrapper * {
+    margin: auto;
+  }
+
+  h3 {
+    text-align: center;
+  }
+
+  #session-length, #break-length {
+    text-align: center;
+  }
+  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+      </head>
+      <body>
+        <div id="wrapper">
+        <div id="break">
+          <h3 id="break-label">Break Length</h3>
+          <button id="break-increment">UP</button>
+          <button id="break-decrement">DOWN</button>
+          <span>(min) </span>
+          <span id="break-length">5</span>
+        </div>
+        <div id="session">
+          <h3 id="session-label">Session Length</h3>
+          <button id="session-increment">UP</button>
+          <button id="session-decrement">DOWN</button>
+          <span>(min) </span>
+          <span id="session-length">25</span>
+        </div>
+        <div id="timer">
+          <h3 id="timer-label">Session</h3>
+          <span>(mm:ss) </span>
+          <span id="time-left">25:00</span>
+          <button id="start_stop">START</button>
+          <button id="reset">RESET</button>
+          <audio id="beep" preload="auto" src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav" />
+        </div>
+        </div>
+      </body>
+      <script>
+        const setupVar = {
+  break: 5,
+  session: 25 };
+
+const timerVar = {
+  timerM: '25',
+  timerS: '00',
+  stat: 0,
+  counter: 25 * 60 };
+
+let timerEn; // = setInterval(countdown(timerVar), 1000);
+const beeper = document.getElementById('beep');
+
+function updateTime(varName, section, text) {
+  switch (text) {
+    case 'UP':
+      varName[section] = varName[section] < 60 ? varName[section] + 1 : varName[section];
+      break;
+    case 'DOWN':
+      varName[section] = varName[section] > 1 ? varName[section] - 1 : varName[section];
+      break;
+    default:
+      break;}
+
+  $("#" + section + "-length").text(varName[section]);
+  updateTL(setupVar, timerVar);
+}
+
+function updateTL(setter, timer) {
+  if (timer.stat == 0) {
+    timer.timerM = setter.session.toString();
+    twoDigits();
+    timer.counter = setter.session * 60;
+    $("#time-left").text(timer.timerM + ":00");
+  }
+}
+
+$("#break button").click(function () {
+  updateTime(setupVar, 'break', $(this).text());
+});
+
+$("#session button").click(function () {
+  updateTime(setupVar, 'session', $(this).text());
+});
+
+$("#reset").click(function () {
+  clearInterval(timerEn);
+  setupVar.break = 5;
+  setupVar.session = 25;
+  timerVar.timerM = '25';
+  timerVar.timerS = '00';
+  timerVar.stat = 0;
+  timerVar.counter = 25 * 60;
+  $("#break-length").text(5);
+  $("#session-length").text(25);
+  $("#time-left").text('25:00');
+  $("#start_stop").text('START');
+  $("#timer-label").text('Session');
+  beeper.pause();
+  beeper.currentTime = 0;
+});
+
+$("#start_stop").click(function () {
+  switch (timerVar.stat) {
+    case 0:
+      timerVar.stat++;
+    case 1: //STOP to START
+      timerVar.stat++;
+      $(this).text('STOP');
+      timerEn = setInterval(countdown, 1000);
+      console.log(timerVar);
+      break;
+    case 2: //START to STOP
+      timerVar.stat--;
+      $(this).text('START');
+      clearInterval(timerEn);
+      console.log(timerVar);
+      break;
+    default:
+      break;}
+
+});
+
+function countdown() {
+  timerVar.counter--;
+  timerVar.timerM = Math.floor(timerVar.counter / 60).toString();
+  timerVar.timerS = (timerVar.counter % 60).toString();
+  twoDigits();
+  if (timerVar.timerS.length == 1) {
+    timerVar.timerS = '0' + timerVar.timerS;
+  }
+  $("#time-left").text(timerVar.timerM + ':' + timerVar.timerS);
+  if (timerVar.counter == 0) {
+    const partText = $("#timer-label").text();
+    switch (partText[0]) {
+      case 'S':
+        $("#timer-label").text('Break');
+        timerVar.counter = setupVar.break * 60;
+        timerVar.timerM = setupVar.break.toString();
+        break;
+      case 'B':
+        $("#timer-label").text('Session');
+        timerVar.counter = setupVar.session * 60;
+        timerVar.timerM = setupVar.session.toString();
+        break;
+      default:
+        break;}
+
+    twoDigits();
+    $("#time-left").text(timerVar.timerM + ':00');
+    beeper.play();
+  }
+}
+
+function twoDigits() {
+  if (timerVar.timerM.length == 1) {
+    timerVar.timerM = '0' + timerVar.timerM;
+  }
+}
+</script>
+</html>
